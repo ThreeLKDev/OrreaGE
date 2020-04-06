@@ -2,7 +2,7 @@ package threelkdev.orreaGE.core.engine;
 
 public class EngineConfigs {
 	
-	public int languageId = 0;//test
+	public int languageId = 0;//test two
 	
 	public int windowWidth = 1280;
 	public int windowHeight = 720;
