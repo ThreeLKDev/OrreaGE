@@ -87,7 +87,7 @@ public class FileUtils {
 	}
 	
 	private static File getLocalResource( ResourceType type, String filename ) {
-		File out = new File( "./res/the3lks/" + type.toString() + "/" + filename );
+		File out = new File( "./res/ThreeLKDev/" + type.toString() + "/" + filename );
 		if( out.exists() )
 			return out;
 		else return null;

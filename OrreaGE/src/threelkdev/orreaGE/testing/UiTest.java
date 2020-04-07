@@ -8,7 +8,6 @@ import threelkdev.orreaGE.core.ui.UiMaster;
 import threelkdev.orreaGE.core.ui.constraints.CenterConstraint;
 import threelkdev.orreaGE.core.ui.constraints.ConstraintFactory;
 import threelkdev.orreaGE.core.ui.constraints.PixelConstraint;
-import threelkdev.orreaGE.core.ui.constraints.PixelOtherConstraint;
 import threelkdev.orreaGE.core.ui.constraints.RelativeConstraint;
 import threelkdev.orreaGE.core.ui.constraints.UiConstraints;
 import threelkdev.orreaGE.core.ui.text.Alignment;
@@ -186,6 +185,7 @@ public class UiTest {
 		cons.setX( new PixelConstraint( 20 ) );
 		cons.setY( new PixelConstraint( 50 ) );
 		UiMaster.add( window, cons);
+		
 		
 	}
 	

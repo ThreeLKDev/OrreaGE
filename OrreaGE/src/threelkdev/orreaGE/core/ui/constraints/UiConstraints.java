@@ -35,24 +35,28 @@ public class UiConstraints {
 	public UiConstraint getWidth() { return widthConstraint; }
 	public UiConstraint getHeight() { return heightConstraint; }
 	
-	public void setX( UiConstraint constraint ) {
+	public UiConstraints setX( UiConstraint constraint ) {
 		this.xConstraint = constraint;
 		constraint.setAxis( true, true );
+		return this;
 	}
 	
-	public void setY( UiConstraint constraint ) {
+	public UiConstraints setY( UiConstraint constraint ) {
 		this.yConstraint = constraint;
 		constraint.setAxis( false, true );
+		return this;
 	}
 	
-	public void setWidth( UiConstraint constraint ) {
+	public UiConstraints setWidth( UiConstraint constraint ) {
 		this.widthConstraint = constraint;
 		constraint.setAxis( true, false );
+		return this;
 	}
 	
-	public void setHeight( UiConstraint constraint ) {
+	public UiConstraints setHeight( UiConstraint constraint ) {
 		this.heightConstraint = constraint;
 		constraint.setAxis( false, false );
+		return this;
 	}
 	
 	

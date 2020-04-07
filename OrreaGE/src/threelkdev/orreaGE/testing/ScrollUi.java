@@ -388,9 +388,9 @@ public class ScrollUi extends UiComponent {
 		currentScrollX = Maths.clamp( xScroll, maxScrollX, 0f /*0.015f*/ );
 		currentScrollY = Maths.clamp( yScroll, maxScrollY, 0f /*0.015f*/ );
 		if( totalScrollX > 1f && allowScrollX )
-			container.getXConstraint().setRelativeValue( currentScrollX );
+			container.getXConstraint().setRelativeValue( ( float ) ( currentScrollX * container.getPixelWidth() ) / ( float ) getPixelWidth() );
 		if( totalScrollY > 1f && allowScrollY )
-			container.getYConstraint().setRelativeValue( currentScrollY );
+			container.getYConstraint().setRelativeValue( ( float ) ( currentScrollY * container.getPixelHeight() ) / ( float ) getPixelHeight() );
 		notifyDimensionChange( false );
 	}
 	
