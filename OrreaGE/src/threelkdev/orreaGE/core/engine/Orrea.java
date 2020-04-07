@@ -56,11 +56,11 @@ public class Orrea {
 	}
 	
 	private static void registerResourceFolders() {
-		FileUtils.registerPath( FileUtils.ResourceType.SHADER, "res/the3lks/shaders" );
-		FileUtils.registerPath( FileUtils.ResourceType.MODEL, "res/the3lks/models" );
-		FileUtils.registerPath( FileUtils.ResourceType.TEXTURE, "res/the3lks/textures" );
-		FileUtils.registerPath( FileUtils.ResourceType.SOUND, "res/the3lks/sounds" );
-		FileUtils.registerPath( FileUtils.ResourceType.OTHER, "res/the3lks" );
+		FileUtils.registerPath( FileUtils.ResourceType.SHADER, "res/ThreeLKDev/shaders" );
+		FileUtils.registerPath( FileUtils.ResourceType.MODEL, "res/ThreeLKDev/models" );
+		FileUtils.registerPath( FileUtils.ResourceType.TEXTURE, "res/ThreeLKDev/textures" );
+		FileUtils.registerPath( FileUtils.ResourceType.SOUND, "res/ThreeLKDev/sounds" );
+		FileUtils.registerPath( FileUtils.ResourceType.OTHER, "res/ThreeLKDev" );
 	}
 	
 	public Window getWindow() {
