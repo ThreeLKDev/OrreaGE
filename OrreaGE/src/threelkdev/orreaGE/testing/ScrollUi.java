@@ -132,8 +132,8 @@ public class ScrollUi extends UiComponent {
 		background.setInteractable( true );
 		background.setClippingBounds( clipBounds );
 		UiConstraints cons = ConstraintFactory.getDefault();
-		cons.setWidth( new FillConstraint( 0 ) );//hasVert ? 10 : 0 ) );
-		cons.setHeight( new FillConstraint( 0 ) );//hasHori ? 10 : 0 ) );
+		cons.setWidth( new FillConstraint( hasVert ? 10 : 0 ) );
+		cons.setHeight( new FillConstraint( hasHori ? 10 : 0 ) );
 		cons.setX( new PixelConstraint( 0 ) );
 		cons.setY( new PixelConstraint( 0 ) );
 		super.attach( background, cons );
@@ -181,7 +181,7 @@ public class ScrollUi extends UiComponent {
 				} );
 				totalScrollX += 0.01f; //
 				totalScrollY += 0.01f; //
-				maxScrollX = 1f - totalScrollX; //0.985f //TODO: Move all Container code into ScrollBoxUI, wrap that with the ScrollBars
+				maxScrollX = 1f - totalScrollX; //0.985f 
 				maxScrollY = 1f - totalScrollY; //0.985f
 				range.getWidthConstraint().setRelativeValue( totalScrollX );
 				range.getHeightConstraint().setRelativeValue( totalScrollY );
@@ -227,8 +227,8 @@ public class ScrollUi extends UiComponent {
 					);
 		} );
 		cons = ConstraintFactory.getDefault();
-		cons.setWidth( new FillConstraint( hasVert ? 10 : 0 ) );
-		cons.setHeight( new FillConstraint( hasHori ? 10 : 0 ) );
+		cons.setWidth( new FillConstraint( 0 ) );
+		cons.setHeight( new FillConstraint( 0 ) );
 		cons.setX( new PixelConstraint( 0 ) );
 		cons.setY( new PixelConstraint( 0 ) );
 		background.attach( container, cons );
@@ -388,9 +388,9 @@ public class ScrollUi extends UiComponent {
 		currentScrollX = Maths.clamp( xScroll, maxScrollX, 0f /*0.015f*/ );
 		currentScrollY = Maths.clamp( yScroll, maxScrollY, 0f /*0.015f*/ );
 		if( totalScrollX > 1f && allowScrollX )
-			container.getXConstraint().setRelativeValue( ( float ) ( currentScrollX * container.getPixelWidth() ) / ( float ) getPixelWidth() );
+			container.getXConstraint().setRelativeValue( ( float ) ( currentScrollX * container.getPixelWidth() ) / ( float ) background.getPixelWidth() );
 		if( totalScrollY > 1f && allowScrollY )
-			container.getYConstraint().setRelativeValue( ( float ) ( currentScrollY * container.getPixelHeight() ) / ( float ) getPixelHeight() );
+			container.getYConstraint().setRelativeValue( ( float ) ( currentScrollY * container.getPixelHeight() ) / ( float ) background.getPixelHeight() );
 		notifyDimensionChange( false );
 	}
 	
