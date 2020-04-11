@@ -9,6 +9,8 @@ import threelkdev.orreaGE.core.inputs.Mouse.MouseDragEvent;
 import threelkdev.orreaGE.core.inputs.Mouse.MouseEvent;
 import threelkdev.orreaGE.core.ui.animation.Animation;
 import threelkdev.orreaGE.core.ui.animation.Animator;
+import threelkdev.orreaGE.core.ui.constraints.ConstraintFactory;
+import threelkdev.orreaGE.core.ui.constraints.PixelConstraint;
 import threelkdev.orreaGE.core.ui.constraints.RelativeConstraint;
 import threelkdev.orreaGE.core.ui.constraints.TextHeightConstraint;
 import threelkdev.orreaGE.core.ui.constraints.UiConstraint;
@@ -194,6 +196,13 @@ public abstract class UiComponent extends Node{
 		//also change its attach() method to match UiMaster's add() ?
 	}
 	
+	//FIXME: Move to a better spot
+	String name;
+	public void setName( String name ) { this.name = name; }
+	public String getName() { return name == null ? getComponentName() : name; }
+	public String getComponentName() { return "UiComponent";}
+	//
+	
 	protected UiRoot getUiRoot() {
 		if( getParent() == null || !( getParent() instanceof UiComponent ) )
 			return null;
@@ -244,7 +253,7 @@ public abstract class UiComponent extends Node{
 	public void setLevel( int level ) {
 		this.level = level;
 		applyToUiChildren( child -> {
-			child.setLevel( level );
+			child.setLevel( ( ( UiComponent ) child.getParent() ).getLevel() + 1 );
 		} );
 	}
 	
@@ -421,24 +430,41 @@ public abstract class UiComponent extends Node{
 			initChild( component );
 		else
 			childrenToAdd.add( component );
-		onAttach();
 	}
 	
-	public void onAttach() {}
+	/**
+	 * Detach a component from this component, if the passed component is in fact attached already.
+	 * @param child
+	 */
+	public void detach( UiComponent child, boolean detachToRoot ) {//TODO
+		if( initialized ) {
+			if( children.contains( ( Node ) child, true ) ) {
+				if( detachToRoot ) {
+					//TODO
+					UiConstraints uc = ConstraintFactory.getDefault()
+						.setX( new PixelConstraint( child.getPixelX() ) )
+						.setY( new PixelConstraint( child.getPixelY() ) )
+						.setWidth( new PixelConstraint( child.getPixelWidth() ) )
+						.setHeight( new PixelConstraint( child.getPixelHeight() ) );
+					this.detach( ( Node ) child );
+					UiMaster.add( child, uc );
+				} else {
+					this.detach( ( Node ) child );
+				}
+			}
+		} else {
+			childrenToAdd.removeValue( child, true );
+		}
+	}
 	
-	/** Legacy function, use only if the passed component already has UiConstraints assigned;
-	 * */
-//	public void attach( UiComponent component ) {
-//		if( component.constraints != null ) {
-//			component.constraints.notifyAdded( component, this );
-//		} else {
-//			throw new OrreaRuntimeException("UiComponent.attach( component ) called, but arg component lacks UiConstraints!");
-//		}
-//	}
-	
+	public void detach( boolean detachToRoot ) {
+		if( parent != null && parent instanceof UiComponent )
+			( ( UiComponent ) parent ).detach( this, detachToRoot );
+	}
+			
 	private void initChild( UiComponent child ) {
 		this.attach( ( Node ) child );
-		child.level = Math.max( level, child.level );
+		child.level = Math.max( level + 1, child.level );
 		child.displayed &= this.displayed;
 		child.calculateScreenSpacePosition( true );
 		child.init();

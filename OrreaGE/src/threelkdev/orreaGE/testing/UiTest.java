@@ -3,6 +3,8 @@ package threelkdev.orreaGE.testing;
 import org.lwjgl.glfw.GLFW;
 
 import threelkdev.orreaGE.core.engine.Orrea;
+import threelkdev.orreaGE.core.inputs.MouseButton;
+import threelkdev.orreaGE.core.inputs.Mouse.MouseClickEvent;
 import threelkdev.orreaGE.core.ui.UiBlock;
 import threelkdev.orreaGE.core.ui.UiMaster;
 import threelkdev.orreaGE.core.ui.constraints.CenterConstraint;
@@ -121,10 +123,31 @@ public class UiTest {
 		cons.setX( new CenterConstraint() );
 		cons.setY( new CenterConstraint() );
 		UiMaster.add( scroll, cons );
-		
 		Orrea.instance.addKeyPressListener( GLFW.GLFW_KEY_H, () -> {
 			if( x == 0 ) y++;
-			UiBlock block = new UiBlock( new Colour( x % 2 == 0 ? 0xff888888 : 0xffaaaaaa ) );
+			UiBlock block = new UiBlock( new Colour( x % 2 == 0 ? 0xff888888 : 0xffaaaaaa ) ) {
+				Colour hover, normal;
+				@Override
+				public void onInit() {
+					normal = getOverrideColour().duplicate();
+					hover = normal.duplicate().lighten( 0x22 );
+				}
+				@Override
+				public void onMouseEnter() {
+					setColour( hover );
+				}
+				@Override
+				public void onMouseExit() {
+					setColour( normal );
+				}
+				@Override
+				public void onMouseDown( MouseClickEvent e ) {
+					if( e.button == MouseButton.RIGHT ) {
+						this.detach( false );
+					}
+				}
+			};
+			block.setInteractable( true );
 			UiConstraints con = ConstraintFactory.getDefault();
 			con.setWidth( new PixelConstraint( 100 ) );
 			con.setHeight( new PixelConstraint( 100 ) );
@@ -134,7 +157,30 @@ public class UiTest {
 		} );
 		Orrea.instance.addKeyPressListener( GLFW.GLFW_KEY_J, () -> {
 			if( y == 0 ) x++;
-			UiBlock block = new UiBlock( new Colour( y % 2 == 0 ? 0xff888888 : 0xffaaaaaa ) );
+			UiBlock block = new UiBlock( new Colour( y % 2 == 0 ? 0xff888888 : 0xffaaaaaa ) ){
+				Colour hover, normal;
+				@Override
+				public void onInit() {
+					normal = getOverrideColour().duplicate();
+					hover = normal.duplicate().lighten( 0x22 );
+				}
+				@Override
+				public void onMouseEnter() {
+					setColour( hover );
+				}
+				@Override
+				public void onMouseExit() {
+					setColour( normal );
+				}
+				@Override
+				public void onMouseDown( MouseClickEvent e ) {
+					if( e.button == MouseButton.RIGHT ) {
+						this.detach( false );
+					}
+				}
+			};
+			block.setInteractable( true );
+			block.setFocusable( true );
 			UiConstraints con = ConstraintFactory.getDefault();
 			con.setWidth( new PixelConstraint( 100 ) );
 			con.setHeight( new PixelConstraint( 100 ) );
@@ -142,31 +188,6 @@ public class UiTest {
 			con.setY( new PixelConstraint( 5 + ( y++ * 105 ) ) );
 			scroll.attach( block, con );
 		} );
-		/*
-		UiBlock red = new UiBlock( new Colour( 0xffff0000 ) );
-		cons = ConstraintFactory.getDefault();
-		cons.setWidth( new PixelConstraint( 100 ) );
-		cons.setHeight( new PixelConstraint( 100 ) );
-		cons.setY( new PixelConstraint( 5 ) );
-		cons.setX( new RelativeConstraint( 0.5f ) );
-		scroll.attach( red, cons );
-		
-		UiBlock blue = new UiBlock( new Colour( 0xff0000ff ) );
-		cons = ConstraintFactory.getDefault();
-		cons.setWidth( new PixelConstraint( 75 ) );
-		cons.setHeight( new PixelConstraint( 100 ) );
-		cons.setY( new PixelConstraint( 200 ) );
-		cons.setX( new RelativeConstraint( 2f ) );
-		scroll.attach( blue, cons );
-		
-		UiBlock green = new UiBlock( new Colour( 0xff00ff00 ) );
-		cons = ConstraintFactory.getDefault();
-		cons.setWidth( new PixelConstraint( 120 ) );
-		cons.setHeight( new PixelConstraint( 200 ) );
-		cons.setX( new PixelConstraint( 100 ) );
-		cons.setY( new RelativeConstraint( 3f ) );
-		scroll.attach( green, cons );
-		*/
 		
 		UiBlock bg = new UiBlock( new Colour( 0x44000000 ) );
 		cons = ConstraintFactory.getDefault();

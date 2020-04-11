@@ -28,6 +28,9 @@ public class UiBlock extends UiComponent implements UiRenderData {
 	}
 	
 	@Override
+	public String getComponentName() { return "Block"; }
+	
+	@Override
 	public float getX() { return super.getAbsX(); }
 	
 	@Override

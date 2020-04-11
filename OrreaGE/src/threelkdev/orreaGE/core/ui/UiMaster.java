@@ -110,22 +110,25 @@ public class UiMaster {
 		focusTarget = null;
 		for( int i = zOrder.size() - 1; i >= 0; i-- ) {
 			zOrder.get( i ).applyToUiChildrenRecursive( child -> {
-				if( ( !child.canFocus() && !child.canInteract() ) || !child.isDisplayed() || mouseTarget != null ) return;
+				if( ( !child.canFocus() && !child.canInteract() ) || !child.isDisplayed() /*|| mouseTarget != null*/ ) return;
 				if( currentMouse.getX() >= child.getAbsX() && currentMouse.getX() <= child.getAbsX() + child.getAbsWidth() ) {
 					if( currentMouse.getY() >= child.getAbsY() && currentMouse.getY() <= child.getAbsY() + child.getAbsHeight() ) {
 						if( child.canFocus() && focusTarget == null )
 							focusTarget = child;
-						if( child.canInteract() )
-							mouseTarget = child;
-//						if( mouseTarget == null )
+						if( child.canInteract() ) {							
 //							mouseTarget = child;
-//						else if( mouseTarget.getLevel() >= child.getLevel() ) {
-//							mouseTarget = child;
-//						}
+							if( mouseTarget == null )
+								mouseTarget = child;
+							else if( mouseTarget.getLevel() <= child.getLevel() ) {
+								mouseTarget = child;
+						}
+						}
 					}
 				}
 			});
-			if( mouseTarget != null ) break;
+//			if( mouseTarget != null ) {
+//				break;
+//			}
 		}
 		/*CONTAINER.applyToUiChildrenRecursive( child -> {
 			if( !child.canFocus() || !child.isDisplayed() ) return;
