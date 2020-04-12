@@ -143,7 +143,8 @@ public class UiTest {
 				@Override
 				public void onMouseDown( MouseClickEvent e ) {
 					if( e.button == MouseButton.RIGHT ) {
-						this.detach( false );
+//						this.detach();
+						this.moveToRoot();
 					}
 				}
 			};
@@ -161,6 +162,7 @@ public class UiTest {
 				Colour hover, normal;
 				@Override
 				public void onInit() {
+					this.setName("Target Block");
 					normal = getOverrideColour().duplicate();
 					hover = normal.duplicate().lighten( 0x22 );
 				}
@@ -175,7 +177,8 @@ public class UiTest {
 				@Override
 				public void onMouseDown( MouseClickEvent e ) {
 					if( e.button == MouseButton.RIGHT ) {
-						this.detach( false );
+//						this.detach();
+						this.moveToRoot();
 					}
 				}
 			};

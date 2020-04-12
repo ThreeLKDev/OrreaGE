@@ -19,4 +19,10 @@ public class UiGroup extends UiComponent {
 		
 	}
 
+	@Override
+	protected void onReInit() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

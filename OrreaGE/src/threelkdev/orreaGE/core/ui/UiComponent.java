@@ -19,7 +19,7 @@ import threelkdev.orreaGE.core.ui.text.Text;
 import threelkdev.orreaGE.tools.pools.Vec2Pool;
 import threelkdev.orreaGE.tools.utils.Array;
 
-public abstract class UiComponent extends Node{
+public abstract class UiComponent extends Node {
 	
 	private Array< UiComponent > childrenToAdd = new Array< UiComponent >( false, 1, UiComponent.class );
 	
@@ -43,13 +43,20 @@ public abstract class UiComponent extends Node{
 	
 	public UiComponent() {
 		this.animator = new Animator( this );
+		this.onCreate();
 	}
 	
-	public void show( boolean show ) { this.visible = show; onShow(); }
+	public void show( boolean show ) { this.displayed = true; this.visible = show; onShow(); }
 	public void onShow() {}
+	
+	/**
+	 * Called only once, after this component is created.
+	 */
+	public void onCreate() {}
 	
 	public boolean isShown() { return visible; }
 	public boolean isDisplayed() { return displayed; }
+	public boolean isInitialized() { return initialized; }
 	public int getLevel() { return level; }
 	public float getAbsX() { return x; }
 	public float getAbsY() { return y; }
@@ -83,7 +90,14 @@ public abstract class UiComponent extends Node{
 	
 	public void setReloadOnSizeChange() { this.reloadOnSizeChange = true; }
 	
-	public void onChange() {};
+	//TODO
+	public void onChange() {}
+	
+	/**
+	 * Used for cross-component communication when no other method is available.
+	 * @param note
+	 */
+	public void customNotify( String note ) {}
 	
 	protected boolean interactable = false;
 	/** Whether this UiComponent should capture/consume mouse inputs. By default, false. Disable to allow clickthrough behaviour. */
@@ -116,6 +130,11 @@ public abstract class UiComponent extends Node{
 				runnable.apply( ( UiComponent ) child );
 			}
 		}
+	}
+	
+	public void applyRecursively( Runnable runnable ) {
+		runnable.apply( this );
+		applyToUiChildrenRecursive( runnable );
 	}
 	
 	public void applyToUiChildren( Runnable runnable, boolean recursive ) {
@@ -188,10 +207,11 @@ public abstract class UiComponent extends Node{
 	}
 	
 	protected void moveToRoot() {
-		constraints.setHeight( new RelativeConstraint( getAbsHeight() ) );
-		constraints.setWidth( new RelativeConstraint( getAbsWidth() ) );
-		constraints.setY( new RelativeConstraint( getAbsY() ) );
-		constraints.setX( new RelativeConstraint( getAbsX() ) );
+		constraints.setHeight( new PixelConstraint( getPixelHeight() ) );
+		constraints.setWidth( new PixelConstraint( getPixelWidth() ) );
+		constraints.setY( new PixelConstraint( getPixelY() ) );
+		constraints.setX( new PixelConstraint( getPixelX() ) );
+		this.detach();
 		getUiRoot().attach( this, constraints );
 		//also change its attach() method to match UiMaster's add() ?
 	}
@@ -212,22 +232,6 @@ public abstract class UiComponent extends Node{
 			else return ( ( UiComponent ) getParent() ).getUiRoot();
 		}
 	}
-	
-	protected void remove( UiComponent newParent ) {
-		
-	}
-	
-	protected void removeChild( UiComponent child, boolean delete ) {
-		if( children.removeValue( child, true ) ) {
-			if( delete )
-				child.dispose();
-			else {
-				child.moveToRoot();
-			}
-		}
-	}
-	
-	public void onRemove() {}
 	
 	protected boolean scaleChangedThisModify = false;
 	public void resetModify( Animation anim ) {
@@ -253,7 +257,7 @@ public abstract class UiComponent extends Node{
 	public void setLevel( int level ) {
 		this.level = level;
 		applyToUiChildren( child -> {
-			child.setLevel( ( ( UiComponent ) child.getParent() ).getLevel() + 1 );
+			child.setLevel( ( ( UiComponent ) child.getParent() ).getLevel() );
 		} );
 	}
 	
@@ -401,7 +405,10 @@ public abstract class UiComponent extends Node{
 	
 	/** Simple initialization, calls onInit() then sets 'initialized' to true. */
 	public void init() {
-		this.onInit();
+		if( !initialized )
+			this.onInit();
+		else
+			this.onReInit();
 		this.initialized = true;
 	}
 	
@@ -413,8 +420,11 @@ public abstract class UiComponent extends Node{
 		this.init();
 	}
 	
-	/** Called at the end of the UiComponent's init function, just prior to setting "initialized" to true. */
+	/** Called after being attached. */
 	protected abstract void onInit();
+	
+	/** Called after being attached, after having already been initialized. */
+	protected abstract void onReInit();
 	
 	public void onPostInit() {}//TODO move to event section
 	
@@ -433,46 +443,47 @@ public abstract class UiComponent extends Node{
 	}
 	
 	/**
-	 * Detach a component from this component, if the passed component is in fact attached already.
-	 * @param child
+	 * Detach a component from this component
+	 * @param child - The component to detach.
 	 */
-	public void detach( UiComponent child, boolean detachToRoot ) {//TODO
+	public void detach( UiComponent child ) {//TODO
 		if( initialized ) {
-			if( children.contains( ( Node ) child, true ) ) {
-				if( detachToRoot ) {
-					//TODO
-					UiConstraints uc = ConstraintFactory.getDefault()
-						.setX( new PixelConstraint( child.getPixelX() ) )
-						.setY( new PixelConstraint( child.getPixelY() ) )
-						.setWidth( new PixelConstraint( child.getPixelWidth() ) )
-						.setHeight( new PixelConstraint( child.getPixelHeight() ) );
-					this.detach( ( Node ) child );
-					UiMaster.add( child, uc );
-				} else {
-					this.detach( ( Node ) child );
-				}
+			if( children.removeValue( ( Node ) child, true ) ) {
+				this.detach( ( Node ) child );
+				onChildDetached();
 			}
 		} else {
-			childrenToAdd.removeValue( child, true );
+			if( childrenToAdd.contains( child,  true ) ) {
+				childrenToAdd.removeValue( child, true );
+			}
 		}
 	}
 	
-	public void detach( boolean detachToRoot ) {
-		if( parent != null && parent instanceof UiComponent )
-			( ( UiComponent ) parent ).detach( this, detachToRoot );
+	/**
+	 * Detach this component from its parent component.
+	 */
+	public void detach() {
+		if( parent != null && parent instanceof UiComponent ) {
+			( ( UiComponent ) parent ).detach( this );
+		}
 	}
+	
+	/**
+	 * TODO
+	 */
+	public void onChildDetached() {}
 			
 	private void initChild( UiComponent child ) {
 		this.attach( ( Node ) child );
-		child.level = Math.max( level + 1, child.level );
+		child.level = Math.max( level, child.level );
 		child.displayed &= this.displayed;
 		child.calculateScreenSpacePosition( true );
 		child.init();
 		child.initAllChildren();
-		onInitChild();
+		onInitChild( child );
 	}
 	
-	public void onInitChild() { }
+	public void onInitChild( UiComponent child ) { }
 	
 	private void initAllChildren() {
 		for( UiComponent child : childrenToAdd ) {
@@ -506,6 +517,9 @@ public abstract class UiComponent extends Node{
 
 		@Override
 		protected void onInit() { }
+		
+		@Override
+		protected void onReInit() { }
 		
 	}
 	

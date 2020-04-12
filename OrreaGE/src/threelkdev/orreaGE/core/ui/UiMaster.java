@@ -14,10 +14,17 @@ import threelkdev.orreaGE.testing.UiStyle;
 
 public class UiMaster {
 	
-	private static final UiRoot CONTAINER = new UiRoot();
+	private static final UiRoot CONTAINER = new UiRoot() {
+		@Override
+		public void onInitChild( UiComponent child ) {
+			child.setLevel( levels++ );
+			zOrder.add( child );
+		}
+	};
+	
 	private static UiRenderer uiRenderer;
 	private static FontRenderer fontRenderer;
-	private static LinkedList< UiComponent > zOrder;
+	public static LinkedList< UiComponent > zOrder;
 	
 	private static int displayWidthPixels;
 	private static int displayHeightPixels;
@@ -109,13 +116,19 @@ public class UiMaster {
 		mouseTarget = null;
 		focusTarget = null;
 		for( int i = zOrder.size() - 1; i >= 0; i-- ) {
-			zOrder.get( i ).applyToUiChildrenRecursive( child -> {
-				if( ( !child.canFocus() && !child.canInteract() ) || !child.isDisplayed() /*|| mouseTarget != null*/ ) return;
+			zOrder.get( i ).applyRecursively( child -> {
+				if( ( !child.canFocus() && !child.canInteract() ) || !child.isDisplayed() ) return;
 				if( currentMouse.getX() >= child.getAbsX() && currentMouse.getX() <= child.getAbsX() + child.getAbsWidth() ) {
 					if( currentMouse.getY() >= child.getAbsY() && currentMouse.getY() <= child.getAbsY() + child.getAbsHeight() ) {
+						if( child instanceof UiRenderData ) {
+							int[] clip = ( ( UiRenderData ) child ).getClippingBounds();
+							if( clip != null && !( currentMouse.getPixelX() >= clip[0] && currentMouse.getPixelX() <= clip[0] + clip[2] && currentMouse.getPixelY() >= clip[1] && currentMouse.getPixelY() <= clip[1] + clip[3] ) ) {
+								return;
+							}
+						}
 						if( child.canFocus() && focusTarget == null )
 							focusTarget = child;
-						if( child.canInteract() ) {							
+						if( child.canInteract() ) {
 //							mouseTarget = child;
 							if( mouseTarget == null )
 								mouseTarget = child;
@@ -126,6 +139,7 @@ public class UiMaster {
 					}
 				}
 			});
+			if( mouseTarget != null && lastMouseTarget != mouseTarget ) System.out.println( mouseTarget.getName() + ": " + mouseTarget.getLevel() );
 //			if( mouseTarget != null ) {
 //				break;
 //			}
@@ -246,10 +260,10 @@ public class UiMaster {
 				break;
 			} else { loop = loop.getParent() instanceof UiComponent ? ( UiComponent ) loop.getParent() : null; }
 		}
-		if( zOrder.contains( component ) ) {
-			zOrder.remove( component );
-			zOrder.add( component );
-		}
+//		if( zOrder.contains( component ) ) {
+//			zOrder.remove( component );
+//			zOrder.add( component );
+//		}
 	}
 	
 	public static void notifyScreenSizeChange( int width, int height ) {

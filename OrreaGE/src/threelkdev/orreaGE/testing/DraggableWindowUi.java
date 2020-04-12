@@ -81,4 +81,10 @@ public class DraggableWindowUi extends UiComponent {
 		
 	}
 
+	@Override
+	protected void onReInit() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

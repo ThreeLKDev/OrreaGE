@@ -48,8 +48,16 @@ public class Mouse {
 		return x;
 	}
 	
+	public int getPixelX() {
+		return ( int ) ( x * UiMaster.getDisplayWidth() );
+	}
+	
 	public float getY(){
 		return y;
+	}
+
+	public int getPixelY() {
+		return ( int ) ( y * UiMaster.getDisplayHeight() );
 	}
 	
 	public float getDx(){

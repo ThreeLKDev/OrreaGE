@@ -92,4 +92,10 @@ public class LeftPanelUi extends UiComponent {
 		}
 	}
 
+	@Override
+	protected void onReInit() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

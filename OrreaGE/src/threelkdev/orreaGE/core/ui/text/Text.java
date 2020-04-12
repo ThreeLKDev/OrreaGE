@@ -84,5 +84,11 @@ public class Text extends UiComponent {
 	
 	@Override
 	protected void updateSelf() {}
+
+	@Override
+	protected void onReInit() {
+		// TODO Auto-generated method stub
+		
+	}
 	
 }

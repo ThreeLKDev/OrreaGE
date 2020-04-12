@@ -74,12 +74,21 @@ public class UiBlock extends UiComponent implements UiRenderData {
 	}
 	
 	@Override
+	protected void moveToRoot() {
+		super.moveToRoot();
+		this.clippingBounds = null;
+	}
+	
+	@Override
 	protected void getRenderData( UiRenderBundle renderData ) {
 		renderData.addUiRenderData( this );
 	}
 	
 	@Override 
 	protected void onInit() {}
+	
+	@Override 
+	protected void onReInit() {}
 	
 	@Override
 	protected void updateSelf() {}

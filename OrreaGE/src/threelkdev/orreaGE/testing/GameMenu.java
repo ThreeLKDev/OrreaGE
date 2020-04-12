@@ -74,5 +74,11 @@ public class GameMenu extends UiComponent {
 				.xDriver( new SlideTransition( 0, 1.3f, 0.6f ) ), 0.1f, 0 );
 		
 	}
+
+	@Override
+	protected void onReInit() {
+		// TODO Auto-generated method stub
+		
+	}
 	
 }

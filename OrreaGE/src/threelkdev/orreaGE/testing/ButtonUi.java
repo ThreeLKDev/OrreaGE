@@ -41,4 +41,10 @@ public class ButtonUi extends UiComponent {
 		super.attach( square, ConstraintFactory.getFill() );
 	}
 
+	@Override
+	protected void onReInit() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

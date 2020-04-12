@@ -168,6 +168,14 @@ public class SliderUi extends UiComponent {
 			this.sliderThickness = sliderThickness;
 		}
 		
+		int getThickness() { return Math.max( backgroundThickness, sliderThickness ); }
+		
+	}
+
+	@Override
+	protected void onReInit() {
+		// TODO Auto-generated method stub
+		
 	}
 	
 }

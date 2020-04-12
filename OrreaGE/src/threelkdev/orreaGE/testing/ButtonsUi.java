@@ -40,4 +40,10 @@ public class ButtonsUi extends UiComponent {
 		}
 	}
 
+	@Override
+	protected void onReInit() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

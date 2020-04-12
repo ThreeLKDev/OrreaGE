@@ -3,11 +3,11 @@ package threelkdev.orreaGE.testing;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.util.vector.Vector2f;
 
-import threelkdev.orreaGE.core.engine.Orrea;
-import threelkdev.orreaGE.core.inputs.MouseButton;
 import threelkdev.orreaGE.core.inputs.Mouse.MouseClickEvent;
 import threelkdev.orreaGE.core.inputs.Mouse.MouseDragEvent;
 import threelkdev.orreaGE.core.inputs.Mouse.MouseEvent;
+import threelkdev.orreaGE.core.engine.Orrea;
+import threelkdev.orreaGE.core.inputs.MouseButton;
 import threelkdev.orreaGE.core.ui.UiBlock;
 import threelkdev.orreaGE.core.ui.UiComponent;
 import threelkdev.orreaGE.core.ui.UiGroup;
@@ -58,7 +58,7 @@ public class ScrollUi extends UiComponent {
 	public static ScrollUi getVerticalScrollUi() { return new ScrollUi( true, false, true, VERTICAL_ALWAYS ); }
 	public static ScrollUi getHorizontalScrollUi() { return new ScrollUi( true, true, false, HORIZONTAL_ALWAYS ); }
 	
-	public ScrollUi() { this( true, true, true, BOTH_ALWAYS ); }
+	public ScrollUi() { this( true, true, true, BOTH_WHEN_NEEDED ); }
 	public ScrollUi( boolean showBackground, boolean scrollX, boolean scrollY, byte showScrollbars ) {
 		this( showBackground, scrollX, scrollY, showScrollbars, new ScrollUiStyle( 
 				new SliderUiStyle(
@@ -66,13 +66,8 @@ public class ScrollUi extends UiComponent {
 						new Colour( 0xff666666 ),
 						new Colour( 0xff555555 ),
 						new Colour( 0xff333333 ),
-						3, 10
-						), new Colour( 0xaa444444 ) ) ); /*
-			new Colour( 0xbb444444 ),
-			new Colour( 0xff222222 ),
-			new Colour( 0xff444444 ),
-			new Colour( 0xff888888 ),
-			new Colour( 0xff666666 ) ); /**/
+						3, 11
+						), new Colour( 0xaa444444 ) ) );
 	}
 	public ScrollUi( boolean showBackground, boolean scrollX, boolean scrollY, byte showScrollbars, ScrollUiStyle style ) {
 		_this = this;
@@ -95,14 +90,14 @@ public class ScrollUi extends UiComponent {
 				( int ) this.getPixelWidth(), ( int ) this.getPixelHeight()
 		};
 		background = new UiBlock( showBackground ? style.backgroundColour.duplicate() : new Colour( 0 ) ) {
-			Vector2f startPos = new Vector2f();
+//			Vector2f startPos = new Vector2f();
 			Vector2f startScroll = new Vector2f();
 			@Override
 			public void onMouseDown( MouseClickEvent e ) {
 				if( e.button == MouseButton.LEFT ) {
 					glideScrollX = 0;
 					glideScrollY = 0;
-					startPos.set( ( float ) ( e.getXAsInt() - getPixelX() ) / ( float ) getPixelWidth(), ( float ) ( e.getYAsInt() - getPixelY() ) / ( float ) getPixelHeight() );
+//					startPos.set( ( float ) ( e.getXAsInt() - getPixelX() ) / ( float ) getPixelWidth(), ( float ) ( e.getYAsInt() - getPixelY() ) / ( float ) getPixelHeight() );
 					startScroll.set( currentScrollX, currentScrollY );//getScrollX(), getScrollY() );
 				}
 			}
@@ -141,8 +136,8 @@ public class ScrollUi extends UiComponent {
 		background.setInteractable( true );
 		background.setClippingBounds( clipBounds );
 		UiConstraints cons = ConstraintFactory.getDefault();
-		cons.setWidth( new FillConstraint( hasVert ? 10 : 0 ) );
-		cons.setHeight( new FillConstraint( hasHori ? 10 : 0 ) );
+		cons.setWidth( new FillConstraint( hasVert ? style.vertBarStyle.getThickness() : 0 ) );
+		cons.setHeight( new FillConstraint( hasHori ? style.horiBarStyle.getThickness() : 0 ) );
 		cons.setX( new PixelConstraint( 0 ) );
 		cons.setY( new PixelConstraint( 0 ) );
 		super.attach( background, cons );
@@ -180,7 +175,19 @@ public class ScrollUi extends UiComponent {
 				attach( bothEnd, cc );
 			}
 			@Override
-			public void onInitChild() {
+			public void onInitChild( UiComponent childComponent ) {
+				resizeContents();
+			}
+			@Override
+			public void onChildDetached() {
+				resizeContents();
+			}
+			@Override
+			public void customNotify( String note ) {
+				if( note == "resizeContents" )
+					resizeContents();
+			}
+			private void resizeContents() {
 				totalScrollX = 0f;
 				totalScrollY = 0f;
 				applyToUiChildren( child -> {
@@ -200,19 +207,35 @@ public class ScrollUi extends UiComponent {
 				bothEnd.getYConstraint().setRelativeValue( totalScrollY );
 				
 				if( ( bars & HORIZONTAL_WHEN_NEEDED ) == HORIZONTAL_WHEN_NEEDED ) {
-					if( totalScrollX > 1f ) {
-						maxScrollY -= horiBar.getHeightConstraint().getRelativeValue();
-						horiBar.show( true );
-					} else
-						horiBar.show( false );
+					if( horiBar.isShown() ) {
+						if( totalScrollX <= 1f ) {
+							horiBar.show( false );
+//							background.getHeightConstraint().offsetPixel( -style.horiBarStyle.getThickness() );
+						} 
+					} else {
+						if( totalScrollX > 1f ) {
+							horiBar.show( true );
+//							background.getHeightConstraint().offsetPixel( style.horiBarStyle.getThickness() );
+						} 
+					}
 				}
 				if( ( bars & VERTICAL_WHEN_NEEDED ) == VERTICAL_WHEN_NEEDED ) {
-					if( totalScrollY > 1f ) {
-						maxScrollX -= vertBar.getWidthConstraint().getRelativeValue();
-						vertBar.show( true );
-					} else
-						vertBar.show( false );
+					if( vertBar.isShown() ) {
+						if( totalScrollY <= 1f )
+							vertBar.show( false );
+						else
+							vertBar.show( true );
+					} else {
+						if( totalScrollY > 1f )
+							vertBar.show( true );
+						else
+							vertBar.show( false );
+					}
 				}
+				if( vertBar.isShown() && horiBar.isShown() ) {
+						separator.show( true);
+				} else separator.show( false );
+				scrollTo( currentScrollX, currentScrollY );
 			}
 		};
 		container.setName( "Container" );
@@ -232,8 +255,9 @@ public class ScrollUi extends UiComponent {
 			};
 			vertBar.setName( "Vertical Scrollbar" );
 			cons = ConstraintFactory.getDefault();
-			cons.setWidth( new PixelConstraint( 10 ) );
-			cons.setHeight( new FillConstraint( hasHori ? 10 : 0 ) );
+			cons.setWidth( new PixelConstraint( style.vertBarStyle.getThickness() ) );
+			cons.setHeight( new FillConstraint( hasHori ? style.horiBarStyle.getThickness() : 0 ) );
+//			cons.setHeight( new RelativeConstraint( 1f ) );
 			cons.setX( new PixelOtherConstraint( 0 ) );
 			cons.setY( new PixelConstraint( 0 ) );
 			if( ( bars & VERTICAL_WHEN_NEEDED ) == VERTICAL_WHEN_NEEDED ) {
@@ -251,8 +275,8 @@ public class ScrollUi extends UiComponent {
 			};
 			horiBar.setName( "Horizontal Scrollbar" );
 			cons = ConstraintFactory.getDefault();
-			cons.setWidth( new FillConstraint( hasVert? 10 : 0 ) );
-			cons.setHeight( new PixelConstraint( 10 ) );
+			cons.setWidth( new FillConstraint( hasVert? style.vertBarStyle.getThickness() : 0 ) );
+			cons.setHeight( new PixelConstraint( style.horiBarStyle.getThickness() ) );
 			cons.setX( new PixelConstraint( 0 ) );
 			cons.setY( new PixelOtherConstraint( 0 ) );
 			if( ( bars & HORIZONTAL_WHEN_NEEDED ) == HORIZONTAL_WHEN_NEEDED ) {
@@ -267,11 +291,30 @@ public class ScrollUi extends UiComponent {
 				public int[] getClippingBounds() {
 					return null;
 				}
+				@Override
+				public void onMouseDown( MouseClickEvent e ) {
+					
+				}
+				@Override
+				public void onMouseDrag( MouseDragEvent e ) {
+					if( e.button == MouseButton.LEFT ) {
+						_this.getWidthConstraint().offsetRelative( e.diffX );
+						_this.getHeightConstraint().offsetRelative( e.diffY );
+						notifyDimensionChange( false );
+						applyClipBounds();
+					}
+				}
+				@Override
+				public void onMouseUp( MouseEvent e ) {
+					if( e.button == MouseButton.LEFT )
+						container.customNotify( "resizeContents" );
+				}
 			};
 			separator.setName( "Scrollbar Separator" );
+			separator.setInteractable( true );
 			cons = ConstraintFactory.getDefault();
-			cons.setWidth( new PixelConstraint( 10 ) );
-			cons.setHeight( new PixelConstraint( 10 ) );
+			cons.setWidth( new PixelConstraint( style.vertBarStyle.getThickness() ) );
+			cons.setHeight( new PixelConstraint( style.horiBarStyle.getThickness() ) );
 			cons.setX( new PixelOtherConstraint( 0 ) );
 			cons.setY( new PixelOtherConstraint( 0 ) );
 			if( ( bars & HORIZONTAL_WHEN_NEEDED ) == HORIZONTAL_WHEN_NEEDED ||
@@ -309,9 +352,6 @@ public class ScrollUi extends UiComponent {
 		};
 		applyClipBounds();
 		setScroll( 0, 0 );
-		System.out.println("ScrollUI: " + this.getLevel()  + "\n"
-				+ "Background: " + background.getLevel() + "\n"
-				+ "Container: " + container.getLevel());
 	}
 	
 	private void applyClipBounds() {
@@ -334,6 +374,12 @@ public class ScrollUi extends UiComponent {
 		clipBounds[ 2 ] = ( int ) background.getPixelWidth();
 		clipBounds[ 3 ] = ( int ) background.getPixelHeight();
 		applyClipBounds();
+		if( horiBar != null ) {
+			horiBar.setSliderSize( 1f / totalScrollX );
+		}
+		if( vertBar != null ) {
+			vertBar.setSliderSize( 1f / totalScrollY );
+		}
 	}
 	
 	@Override
@@ -376,11 +422,11 @@ public class ScrollUi extends UiComponent {
 	}
 	
 	private void scrollTo( float xScroll, float yScroll ) {
-		currentScrollX = Maths.clamp( xScroll, maxScrollX, 0f /*0.015f*/ );
-		currentScrollY = Maths.clamp( yScroll, maxScrollY, 0f /*0.015f*/ );
-		if( totalScrollX > 1f && allowScrollX )
+		currentScrollX = Maths.clamp( xScroll, maxScrollX <= 0f ? maxScrollX : 0f, 0f /*0.015f*/ );
+		currentScrollY = Maths.clamp( yScroll, maxScrollY <= 0f ? maxScrollY : 0f, 0f /*0.015f*/ );
+		if( allowScrollX )
 			container.getXConstraint().setRelativeValue( ( float ) ( currentScrollX * container.getPixelWidth() ) / ( float ) background.getPixelWidth() );
-		if( totalScrollY > 1f && allowScrollY )
+		if( allowScrollY )
 			container.getYConstraint().setRelativeValue( ( float ) ( currentScrollY * container.getPixelHeight() ) / ( float ) background.getPixelHeight() );
 		notifyDimensionChange( false );
 	}
@@ -411,6 +457,13 @@ public class ScrollUi extends UiComponent {
 			this.horiBarStyle = horiBarStyle;
 			this.backgroundColour = backgroundColour;
 		}
+		
+	}
+
+
+	@Override
+	protected void onReInit() {
+		// TODO Auto-generated method stub
 		
 	}
 	
