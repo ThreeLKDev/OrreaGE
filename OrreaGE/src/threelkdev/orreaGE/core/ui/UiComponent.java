@@ -75,8 +75,8 @@ public abstract class UiComponent extends Node {
 	public int getPixelHeight() { return Math.round( height * UiMaster.getDisplayHeight() ); }
 	public int getPixelX() { return Math.round( x * UiMaster.getDisplayWidth() ); }
 	public int getPixelY() { return Math.round( y * UiMaster.getDisplayHeight() ); }
-	public int getRelativePixelX() { return ( parent instanceof UiComponent ? ( int ) ( getXConstraint().getRelativeValue() * ( ( UiComponent ) parent ).getPixelX() ) : getPixelX() ); }
-	public int getRelativePixelY() { return ( parent instanceof UiComponent ? ( int ) ( getYConstraint().getRelativeValue() * ( ( UiComponent ) parent ).getPixelY() ) : getPixelY() ); }
+	public int getRelativePixelX() { return ( parent instanceof UiComponent ? getPixelX() - ( ( UiComponent ) parent ).getPixelX() : getPixelX() ); }
+	public int getRelativePixelY() { return ( parent instanceof UiComponent ? getPixelY() - ( ( UiComponent ) parent ).getPixelY() : getPixelY() ); }
 	public float pixelsToRelativeX( float pixels ) { return pixels / getPixelWidth(); }
 	public float pixelsToRelativeY( float pixels ) { return pixels / getPixelHeight(); }
 	public float getRelativeHeightCoords( float relativeWidth ) { return relativeWidth * getAbsAspectRatio(); }
