@@ -16,7 +16,7 @@ import threelkdev.orreaGE.tools.math.Maths;
 
 public class SliderUi extends UiComponent {
 	
-	UiBlock background, slider;
+	UiBlock background, thumb;
 	float value, startDrag, startPos;
 	int minSize = 10;
 	boolean isHorizontal;
@@ -40,7 +40,7 @@ public class SliderUi extends UiComponent {
 		this.colSlider			= style.foregroundColour;
 		this.colSliderActive	= style.activeColour;
 		this.colSliderHover		= style.hoverColour;
-		background = new UiBlock( /*/new Colour( 0x0 ) );//*/style.backgroundColour );
+		background = new UiBlock( style.backgroundColour );
 		UiConstraints cons = ConstraintFactory.getFill();
 		if( isHorizontal ) {
 			cons.setHeight( new PixelConstraint( style.backgroundThickness ) );
@@ -49,9 +49,10 @@ public class SliderUi extends UiComponent {
 			cons.setWidth( new PixelConstraint( style.backgroundThickness ) );
 			cons.setX( new CenterConstraint() );
 		}
+		background.setName( "Slider Background" );
 		super.attach( background, cons );
 		
-		slider = new UiBlock( colSlider.duplicate() ) {
+		thumb = new UiBlock( colSlider.duplicate() ) {
 			boolean mouseOver = false;
 			@Override
 			public void onMouseEnter() {
@@ -91,13 +92,14 @@ public class SliderUi extends UiComponent {
 					setColour( mouseOver ? _this.colSliderHover : _this.colSlider );
 			}
 		};
-		slider.setInteractable( true );
+		thumb.setName( "Slider Thumb" );
+		thumb.setInteractable( true );
 		cons = ConstraintFactory.getDefault();
 		cons.setWidth( isHorizontal ? new PixelConstraint( style.sliderThickness) : new RelativeConstraint( 1f ) );
 		cons.setHeight( isHorizontal ? new RelativeConstraint( 1f ) : new PixelConstraint( style.sliderThickness ) );
 		cons.setX( new PixelConstraint( 0 ) );
 		cons.setY( new PixelConstraint( 0 ) );
-		super.attach( slider, cons );
+		super.attach( thumb, cons );
 	}
 	
 	@Override
@@ -120,10 +122,10 @@ public class SliderUi extends UiComponent {
 	public void setSliderSize( float value ) {
 		if( isHorizontal ) {
 			value = Maths.clamp( value, ( float ) minSize / ( float ) getPixelWidth(), 1f );
-			slider.getWidthConstraint().setRelativeValue( value );
+			thumb.getWidthConstraint().setRelativeValue( value );
 		} else {
 			value = Maths.clamp( value, ( float ) minSize / ( float ) getPixelHeight(), 1f );
-			slider.getHeightConstraint().setRelativeValue( value );
+			thumb.getHeightConstraint().setRelativeValue( value );
 		}
 		setValue( this.value );
 	}
@@ -131,9 +133,9 @@ public class SliderUi extends UiComponent {
 	public void setValue( float value ) {
 		this.value = Maths.clamp( value, 0, 1 );
 		if( isHorizontal ) {
-			slider.getXConstraint().setRelativeValue( this.value * ( background.getWidthConstraint().getRelativeValue() - slider.getWidthConstraint().getRelativeValue() ) );
+			thumb.getXConstraint().setRelativeValue( this.value * ( background.getWidthConstraint().getRelativeValue() - thumb.getWidthConstraint().getRelativeValue() ) );
 		} else {
-			slider.getYConstraint().setRelativeValue( this.value * ( background.getHeightConstraint().getRelativeValue() - slider.getHeightConstraint().getRelativeValue() ) );
+			thumb.getYConstraint().setRelativeValue( this.value * ( background.getHeightConstraint().getRelativeValue() - thumb.getHeightConstraint().getRelativeValue() ) );
 		}
 	}
 	
@@ -142,7 +144,7 @@ public class SliderUi extends UiComponent {
 	}
 	
 	public void setSliderColour( Colour colour ) {
-		slider.setColour( colour );
+		thumb.setColour( colour );
 		colSlider.set( colour );
 	}
 	
