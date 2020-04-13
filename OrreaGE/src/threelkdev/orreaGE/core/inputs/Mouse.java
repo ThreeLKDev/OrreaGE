@@ -157,14 +157,14 @@ public class Mouse {
 			this.relativeDragY = relativeDragY;
 		}
 
-		public int getXAsInt() { return ( int ) ( this.x * UiMaster.getDisplayWidth() ); }
-		public int getYAsInt() { return ( int ) ( this.y * UiMaster.getDisplayHeight() ); }
-		public int getStartXAsInt() { return ( int ) ( this.startX * UiMaster.getDisplayWidth() ); }
-		public int getStartYAsInt() { return ( int ) ( this.startY * UiMaster.getDisplayHeight() ); }
-		public int getDiffXAsInt() { return ( int ) ( this.diffX * UiMaster.getDisplayWidth() ); }
-		public int getDiffYAsInt() { return ( int ) ( this.diffY * UiMaster.getDisplayHeight() ); }
-		public int getRelativeDragXAsInt() { return ( int ) ( this.relativeDragX * UiMaster.getDisplayWidth() ); }
-		public int getRelativeDragYAsInt() { return ( int ) ( this.relativeDragY * UiMaster.getDisplayHeight() ); }
+		public int getXAsInt() { return ( int ) ( this.x * UiMaster.getDisplayWidth() + 0.5f); }
+		public int getYAsInt() { return ( int ) ( this.y * UiMaster.getDisplayHeight() + 0.5f); }
+		public int getStartXAsInt() { return ( int ) ( this.startX * UiMaster.getDisplayWidth() + 0.5f); }
+		public int getStartYAsInt() { return ( int ) ( this.startY * UiMaster.getDisplayHeight() + 0.5f); }
+		public int getDiffXAsInt() { return ( int ) ( this.diffX * UiMaster.getDisplayWidth() + 0.5f); }
+		public int getDiffYAsInt() { return ( int ) ( this.diffY * UiMaster.getDisplayHeight() + 0.5f); }
+		public int getRelativeDragXAsInt() { return ( int ) ( this.relativeDragX * UiMaster.getDisplayWidth() + 0.5f); }
+		public int getRelativeDragYAsInt() { return ( int ) ( this.relativeDragY * UiMaster.getDisplayHeight() + 0.5f); }
 	}
 	
 	public MouseEvent getEvent( MouseButton button ) {
