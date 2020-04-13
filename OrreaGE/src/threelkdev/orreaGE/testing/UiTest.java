@@ -3,9 +3,10 @@ package threelkdev.orreaGE.testing;
 import org.lwjgl.glfw.GLFW;
 
 import threelkdev.orreaGE.core.engine.Orrea;
-import threelkdev.orreaGE.core.inputs.MouseButton;
 import threelkdev.orreaGE.core.inputs.Mouse.MouseClickEvent;
+import threelkdev.orreaGE.core.inputs.MouseButton;
 import threelkdev.orreaGE.core.ui.UiBlock;
+import threelkdev.orreaGE.core.ui.UiComponent;
 import threelkdev.orreaGE.core.ui.UiMaster;
 import threelkdev.orreaGE.core.ui.constraints.CenterConstraint;
 import threelkdev.orreaGE.core.ui.constraints.ConstraintFactory;
@@ -118,10 +119,10 @@ public class UiTest {
 		 */
 		
 		ScrollUi scroll = new ScrollUi();
-		cons.setHeight( new PixelConstraint( 600 ) );
-		cons.setWidth( new PixelConstraint( 600 ) );
-		cons.setX( new CenterConstraint() );
-		cons.setY( new CenterConstraint() );
+		cons.setHeight( new PixelConstraint( 200 ) );
+		cons.setWidth( new PixelConstraint( 200 ) );
+		cons.setX( new PixelConstraint( 500 ) );
+		cons.setY( new PixelConstraint( 100 ) );
 		UiMaster.add( scroll, cons );
 		Orrea.instance.addKeyPressListener( GLFW.GLFW_KEY_H, () -> {
 			if( x == 0 ) y++;
@@ -150,9 +151,9 @@ public class UiTest {
 			};
 			block.setInteractable( true );
 			UiConstraints con = ConstraintFactory.getDefault();
-			con.setWidth( new PixelConstraint( 100 ) );
-			con.setHeight( new PixelConstraint( 100 ) );
-			con.setX( new PixelConstraint( 5 + ( x++ * 105 ) ) );
+			con.setWidth( new PixelConstraint( 50 ) );
+			con.setHeight( new PixelConstraint( 50 ) );
+			con.setX( new PixelConstraint( 5 + ( x++ * 55 ) ) );
 			con.setY( new PixelConstraint( 5 ) );
 			scroll.attach( block, con );
 		} );
@@ -165,6 +166,11 @@ public class UiTest {
 					this.setName("Target Block");
 					normal = getOverrideColour().duplicate();
 					hover = normal.duplicate().lighten( 0x22 );
+					if( y == 3 ) {
+						Orrea.instance.addKeyPressListener( GLFW.GLFW_KEY_M, () -> { 
+							System.out.println( ( int ) ( getXConstraint().getRelativeValue() * ( ( UiComponent ) getParent() ).getPixelWidth() ) ); 
+						} );
+					}
 				}
 				@Override
 				public void onMouseEnter() {
@@ -185,10 +191,10 @@ public class UiTest {
 			block.setInteractable( true );
 			block.setFocusable( true );
 			UiConstraints con = ConstraintFactory.getDefault();
-			con.setWidth( new PixelConstraint( 100 ) );
-			con.setHeight( new PixelConstraint( 100 ) );
+			con.setWidth( new PixelConstraint( 50 ) );
+			con.setHeight( new PixelConstraint( 50 ) );
 			con.setX( new PixelConstraint( 5 ) );
-			con.setY( new PixelConstraint( 5 + ( y++ * 105 ) ) );
+			con.setY( new PixelConstraint( 5 + ( y++ * 55 ) ) );
 			scroll.attach( block, con );
 		} );
 		
