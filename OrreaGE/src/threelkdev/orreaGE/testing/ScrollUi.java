@@ -39,9 +39,9 @@ public class ScrollUi extends UiComponent {
 	int[] clipBounds;
 	UiComponent container;
 	UiBlock background, separator;
-	float currentScrollX = 0, currentScrollY = 0;
-	float totalScrollX = 0, totalScrollY = 0;
-	float maxScrollX = 0, maxScrollY = 0;
+	int currentScrollX = 0, currentScrollY = 0;
+	int totalScrollX = 0, totalScrollY = 0;
+	int maxScrollX = 0, maxScrollY = 0;
 	float glideScrollX = 0, glideScrollY = 0, glideDampening = 0.98f, glideMin = 0.001f;
 	float glideMinSquared = glideMin * glideMin;
 	RollingAverage avgGlideX, avgGlideY;
@@ -90,32 +90,33 @@ public class ScrollUi extends UiComponent {
 				( int ) this.getPixelWidth(), ( int ) this.getPixelHeight()
 		};
 		background = new UiBlock( showBackground ? style.backgroundColour.duplicate() : new Colour( 0 ) ) {
-//			Vector2f startPos = new Vector2f();
-			Vector2f startScroll = new Vector2f();
+			int startScrollX, startScrollY;
 			@Override
 			public void onMouseDown( MouseClickEvent e ) {
 				if( e.button == MouseButton.LEFT ) {
 					glideScrollX = 0;
 					glideScrollY = 0;
-//					startPos.set( ( float ) ( e.getXAsInt() - getPixelX() ) / ( float ) getPixelWidth(), ( float ) ( e.getYAsInt() - getPixelY() ) / ( float ) getPixelHeight() );
-					startScroll.set( currentScrollX, currentScrollY );//getScrollX(), getScrollY() );
+					startScrollX = currentScrollX;
+					startScrollY = currentScrollY;;
 				}
 			}
-			float diffX, diffY;
+			int diffX, diffY;
 			@Override
 			public void onMouseDrag( MouseDragEvent e ) {
 				if( e.button == MouseButton.LEFT ) {
-					diffX = e.relativeDragX / getWidth();
-					diffY = e.relativeDragY / getHeight();
-					scrollTo( Maths.clamp( startScroll.x + diffX, maxScrollX, 0f /*0.015f*/ ), Maths.clamp( startScroll.y + diffY, maxScrollY, 0f /*0.015f*/ ) );
+//					diffX = (int) ( ( e.relativeDragX / getAbsWidth() ) * background.getPixelWidth() );
+					diffX = e.getRelativeDragXAsInt();
+//					diffY = (int) ( ( e.relativeDragY / getAbsHeight() ) * background.getPixelHeight() );
+					diffY = e.getRelativeDragYAsInt();
+					scrollTo( startScrollX + diffX, startScrollY + diffY );
 					if( horiBar != null )
 						horiBar.setValue( getScrollX() );
 					if( vertBar != null )
 						vertBar.setValue( getScrollY() );
 					if( glideDampening > 0 ) {
 						if( glideDampening > 0 ) {
-							avgGlideX.addValue( e.diffX );
-							avgGlideY.addValue( e.diffY );
+							avgGlideX.addValue( -e.diffX );
+							avgGlideY.addValue( -e.diffY );
 						}
 					}
 				} else if( e.button == MouseButton.MIDDLE ) {
@@ -151,6 +152,7 @@ public class ScrollUi extends UiComponent {
 				cc.setY( new PixelConstraint( 0 ) );
 				cc.setWidth( new RelativeConstraint( 1f ) );
 				cc.setHeight( new RelativeConstraint( 1f ) );
+				range.setName( "Range" );
 				attach( range, cc );
 				xEnd = new UiBlock( new Colour( 0x88aa8888 ) );
 				cc = ConstraintFactory.getDefault();
@@ -188,45 +190,43 @@ public class ScrollUi extends UiComponent {
 					resizeContents();
 			}
 			private void resizeContents() {
-				totalScrollX = 0f;
-				totalScrollY = 0f;
+				totalScrollX = 0;
+				totalScrollY = 0;
 				applyToUiChildren( child -> {
 					if( child == range || child == xEnd || child == yEnd || child == bothEnd ) return;
-					totalScrollX = Math.max( totalScrollX, child.getXConstraint().getRelativeValue() + child.getWidthConstraint().getRelativeValue() );
-					totalScrollY = Math.max( totalScrollY, child.getYConstraint().getRelativeValue() + child.getHeightConstraint().getRelativeValue() );
+					totalScrollX = Math.max( totalScrollX, child.getRelativePixelX() + child.getPixelWidth() );
+					totalScrollY = Math.max( totalScrollY, child.getRelativePixelY() + child.getPixelHeight() );
 				} );
-				totalScrollX += 0.01f; //
-				totalScrollY += 0.01f; //
-				maxScrollX = 1f - totalScrollX; //0.985f 
-				maxScrollY = 1f - totalScrollY; //0.985f
-				range.getWidthConstraint().setRelativeValue( totalScrollX );
-				range.getHeightConstraint().setRelativeValue( totalScrollY );
-				xEnd.getXConstraint().setRelativeValue( totalScrollX );
-				yEnd.getYConstraint().setRelativeValue( totalScrollY );
-				bothEnd.getXConstraint().setRelativeValue( totalScrollX );
-				bothEnd.getYConstraint().setRelativeValue( totalScrollY );
+				totalScrollX += 5;//0.01f; //
+				totalScrollY += 5;//0.01f; //
+				maxScrollX = background.getPixelWidth() - totalScrollX; //0.985f 
+				maxScrollY = background.getPixelHeight() - totalScrollY; //0.985f
+				range.getWidthConstraint().setPixelValue( totalScrollX );
+				range.getHeightConstraint().setPixelValue( totalScrollY );
+				xEnd.getXConstraint().setPixelValue( totalScrollX );
+				yEnd.getYConstraint().setPixelValue( totalScrollY );
+				bothEnd.getXConstraint().setPixelValue( totalScrollX );
+				bothEnd.getYConstraint().setPixelValue( totalScrollY );
 				
 				if( ( bars & HORIZONTAL_WHEN_NEEDED ) == HORIZONTAL_WHEN_NEEDED ) {
 					if( horiBar.isShown() ) {
-						if( totalScrollX <= 1f ) {
+						if( totalScrollX <= ( background.getPixelWidth() + 5f ) / background.getPixelWidth() ) {
 							horiBar.show( false );
-//							background.getHeightConstraint().offsetPixel( -style.horiBarStyle.getThickness() );
 						} 
 					} else {
-						if( totalScrollX > 1f ) {
+						if( totalScrollX > ( background.getPixelWidth() + 5f ) / background.getPixelWidth() ) {
 							horiBar.show( true );
-//							background.getHeightConstraint().offsetPixel( style.horiBarStyle.getThickness() );
 						} 
 					}
 				}
 				if( ( bars & VERTICAL_WHEN_NEEDED ) == VERTICAL_WHEN_NEEDED ) {
 					if( vertBar.isShown() ) {
-						if( totalScrollY <= 1f )
+						if( totalScrollY <= ( background.getPixelHeight() + 5f ) / background.getPixelHeight() )
 							vertBar.show( false );
 						else
 							vertBar.show( true );
 					} else {
-						if( totalScrollY > 1f )
+						if( totalScrollY > ( background.getPixelHeight() + 5f ) / background.getPixelHeight() )
 							vertBar.show( true );
 						else
 							vertBar.show( false );
@@ -300,14 +300,15 @@ public class ScrollUi extends UiComponent {
 					if( e.button == MouseButton.LEFT ) {
 						_this.getWidthConstraint().offsetRelative( e.diffX );
 						_this.getHeightConstraint().offsetRelative( e.diffY );
-						notifyDimensionChange( false );
-						applyClipBounds();
+						_this.notifyDimensionChange( true );
+						//TODO: Resizing when X or Y constraint is a CenterConstaint looks weird. Works effectively identical.
 					}
 				}
 				@Override
 				public void onMouseUp( MouseEvent e ) {
 					if( e.button == MouseButton.LEFT )
 						container.customNotify( "resizeContents" );
+					System.out.println("!");
 				}
 			};
 			separator.setName( "Scrollbar Separator" );
@@ -323,6 +324,12 @@ public class ScrollUi extends UiComponent {
 			}
 			super.attach( separator, cons );
 		}
+		Orrea.instance.addKeyPressListener( GLFW.GLFW_KEY_M, () -> { 
+			System.out.println(""
+					+ "[ " + _this.getWidthConstraint().getRelativeValue() + ", " + _this.getHeightConstraint().getRelativeValue() + " ]   "
+				);
+//			container.customNotify( "resizeContents" );
+		} );
 	}
 	
 	@Override
@@ -375,10 +382,12 @@ public class ScrollUi extends UiComponent {
 		clipBounds[ 3 ] = ( int ) background.getPixelHeight();
 		applyClipBounds();
 		if( horiBar != null ) {
-			horiBar.setSliderSize( 1f / totalScrollX );
+			horiBar.setSliderSize( ( float ) background.getPixelWidth() / ( float ) totalScrollX );
+			horiBar.setValue( getScrollX() );
 		}
 		if( vertBar != null ) {
-			vertBar.setSliderSize( 1f / totalScrollY );
+			vertBar.setSliderSize( ( float ) background.getPixelHeight() / ( float ) totalScrollY );
+			vertBar.setValue( getScrollY() );
 		}
 	}
 	
@@ -386,10 +395,10 @@ public class ScrollUi extends UiComponent {
 	public void attach( UiComponent component, UiConstraints cons ) {
 		container.attach( component, cons );
 		if( horiBar != null ) {
-			horiBar.setSliderSize( 1f / totalScrollX );
+			horiBar.setSliderSize( ( float ) background.getPixelWidth() / ( float ) totalScrollX );
 		}
 		if( vertBar != null ) {
-			vertBar.setSliderSize( 1f / totalScrollY );
+			vertBar.setSliderSize( ( float ) background.getPixelHeight() / ( float ) totalScrollY );
 		}
 		if( component instanceof UiRenderData )
 			( ( UiRenderData ) component ).setClippingBounds( clipBounds );
@@ -402,15 +411,29 @@ public class ScrollUi extends UiComponent {
 	boolean changed;
 	private void tryScroll( float xChange, float yChange ) {
 		changed = false;
-		if( totalScrollX > 1f && xChange != 0 ) {
-			currentScrollX += xChange;
+		if( totalScrollX > background.getPixelWidth() && xChange != 0 ) {
+			currentScrollX += xChange * background.getPixelWidth();
 			changed = true;
 		}
-		if( totalScrollY > 1f && yChange != 0 ) {
-			currentScrollY += yChange;
+		if( totalScrollY > background.getPixelHeight() && yChange != 0 ) {
+			currentScrollY += yChange * background.getPixelHeight();
 			changed = true;
 		}
 		if( changed ) scrollTo( currentScrollX, currentScrollY );
+	}
+	
+	boolean intChanged;
+	private void tryScroll( int xChange, int yChange ) {
+		intChanged = false;
+		if( totalScrollX > background.getPixelWidth() && xChange != 0 ) {
+			currentScrollX += xChange;
+			intChanged = true;
+		}
+		if( totalScrollY > background.getPixelHeight() && yChange != 0 ) {
+			currentScrollY += yChange;
+			intChanged = true;
+		}
+		if( intChanged ) scrollTo( currentScrollX, currentScrollY );
 	}
 	
 	public float getScrollX() {
@@ -421,13 +444,23 @@ public class ScrollUi extends UiComponent {
 		return ( currentScrollY - 0f /*0.015f*/ ) / maxScrollY;
 	}
 	
-	private void scrollTo( float xScroll, float yScroll ) {
-		currentScrollX = Maths.clamp( xScroll, maxScrollX <= 0f ? maxScrollX : 0f, 0f /*0.015f*/ );
-		currentScrollY = Maths.clamp( yScroll, maxScrollY <= 0f ? maxScrollY : 0f, 0f /*0.015f*/ );
+	private void scrollTo( int xScroll, int yScroll ) {
+		currentScrollX = Maths.clamp( xScroll, maxScrollX <= 0 ? maxScrollX : 0, 0 );
+		currentScrollY = Maths.clamp( yScroll, maxScrollY <= 0 ? maxScrollY : 0, 0 );
 		if( allowScrollX )
-			container.getXConstraint().setRelativeValue( ( float ) ( currentScrollX * container.getPixelWidth() ) / ( float ) background.getPixelWidth() );
+			container.getXConstraint().setRelativeValue( ( float ) ( currentScrollX  ) / ( float ) background.getPixelWidth() );
 		if( allowScrollY )
-			container.getYConstraint().setRelativeValue( ( float ) ( currentScrollY * container.getPixelHeight() ) / ( float ) background.getPixelHeight() );
+			container.getYConstraint().setRelativeValue( ( float ) ( currentScrollY  ) / ( float ) background.getPixelHeight() );
+		notifyDimensionChange( false );
+	}
+	
+	private void scrollTo( float xScroll, float yScroll ) {
+		currentScrollX = Maths.clamp( ( int ) ( xScroll * maxScrollX ), maxScrollX <= 0 ? maxScrollX : 0, 0 );
+		currentScrollY = Maths.clamp( ( int ) ( yScroll * maxScrollY ), maxScrollY <= 0 ? maxScrollY : 0, 0 );
+		if( allowScrollX )
+			container.getXConstraint().setRelativeValue( ( float ) ( currentScrollX  ) / ( float ) background.getPixelWidth() );
+		if( allowScrollY )
+			container.getYConstraint().setRelativeValue( ( float ) ( currentScrollY  ) / ( float ) background.getPixelHeight() );
 		notifyDimensionChange( false );
 	}
 	
@@ -439,8 +472,8 @@ public class ScrollUi extends UiComponent {
 		scrollTo( ( x * ( maxScrollX - 0f /*0.015f*/ ) ) + 0f /*0.015f*/ ,
 				  ( y * ( maxScrollY - 0f /*0.015f*/ ) ) + 0f /*0.015f*/ );
 	}
-	public void setScrollX( float x ) { scrollTo( ( x * ( maxScrollX - 0f /*0.015f*/ ) ) + 0f /*0.015f*/, currentScrollY ); }
-	public void setScrollY( float y ) { scrollTo( currentScrollX, ( y * ( maxScrollY - 0f /*0.015f*/ ) ) + 0f /*0.015f*/ ); }
+	public void setScrollX( float x ) { scrollTo( x, ( float ) currentScrollY / ( float ) maxScrollY ); }
+	public void setScrollY( float y ) { scrollTo( ( float ) currentScrollX / ( float ) maxScrollX, y ); }
 	
 	
 	public static class ScrollUiStyle {
