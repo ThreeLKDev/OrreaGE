@@ -1,18 +1,18 @@
 package threelkdev.orreaGE.testing;
 
 import org.lwjgl.glfw.GLFW;
-import org.lwjgl.util.vector.Vector2f;
 
+import threelkdev.orreaGE.core.engine.Orrea;
 import threelkdev.orreaGE.core.inputs.Mouse.MouseClickEvent;
 import threelkdev.orreaGE.core.inputs.Mouse.MouseDragEvent;
 import threelkdev.orreaGE.core.inputs.Mouse.MouseEvent;
-import threelkdev.orreaGE.core.engine.Orrea;
 import threelkdev.orreaGE.core.inputs.MouseButton;
 import threelkdev.orreaGE.core.ui.UiBlock;
 import threelkdev.orreaGE.core.ui.UiComponent;
 import threelkdev.orreaGE.core.ui.UiGroup;
 import threelkdev.orreaGE.core.ui.UiMaster;
 import threelkdev.orreaGE.core.ui.UiRenderData;
+import threelkdev.orreaGE.core.ui.constraints.CenterConstraint;
 import threelkdev.orreaGE.core.ui.constraints.ConstraintFactory;
 import threelkdev.orreaGE.core.ui.constraints.FillConstraint;
 import threelkdev.orreaGE.core.ui.constraints.PixelConstraint;
@@ -42,7 +42,7 @@ public class ScrollUi extends UiComponent {
 	int currentScrollX = 0, currentScrollY = 0;
 	int totalScrollX = 0, totalScrollY = 0;
 	int maxScrollX = 0, maxScrollY = 0;
-	float glideScrollX = 0, glideScrollY = 0, glideDampening = 0.98f, glideMin = 0.001f;
+	float glideScrollX = 0, glideScrollY = 0, glideDampening = 0.985f, glideMin = 0.001f;
 	float glideMinSquared = glideMin * glideMin;
 	RollingAverage avgGlideX, avgGlideY;
 	boolean allowScrollX, allowScrollY;
@@ -52,7 +52,7 @@ public class ScrollUi extends UiComponent {
 	
 	//
 	ScrollUiStyle style;
-	UiBlock range, xEnd, yEnd, bothEnd;
+//	UiBlock range, xEnd, yEnd, bothEnd;
 	//
 	
 	public static ScrollUi getVerticalScrollUi() { return new ScrollUi( true, false, true, VERTICAL_ALWAYS ); }
@@ -115,8 +115,8 @@ public class ScrollUi extends UiComponent {
 						vertBar.setValue( getScrollY() );
 					if( glideDampening > 0 ) {
 						if( glideDampening > 0 ) {
-							avgGlideX.addValue( -e.diffX );
-							avgGlideY.addValue( -e.diffY );
+							avgGlideX.addValue( e.diffX );
+							avgGlideY.addValue( e.diffY );
 						}
 					}
 				} else if( e.button == MouseButton.MIDDLE ) {
@@ -146,6 +146,7 @@ public class ScrollUi extends UiComponent {
 		container = new UiGroup() {
 			@Override
 			public void onInit() {
+				/*
 				range = new UiBlock( new Colour( 0x88888888 ) );
 				UiConstraints cc = ConstraintFactory.getDefault();
 				cc.setX( new PixelConstraint( 0 ) );
@@ -175,6 +176,7 @@ public class ScrollUi extends UiComponent {
 				cc.setWidth( new PixelConstraint( 25 ) );
 				cc.setHeight( new PixelConstraint( 25 ) );
 				attach( bothEnd, cc );
+				*/
 			}
 			@Override
 			public void onInitChild( UiComponent childComponent ) {
@@ -193,7 +195,7 @@ public class ScrollUi extends UiComponent {
 				totalScrollX = 0;
 				totalScrollY = 0;
 				applyToUiChildren( child -> {
-					if( child == range || child == xEnd || child == yEnd || child == bothEnd ) return;
+					//if( child == range || child == xEnd || child == yEnd || child == bothEnd ) return;
 					totalScrollX = Math.max( totalScrollX, child.getRelativePixelX() + child.getPixelWidth() );
 					totalScrollY = Math.max( totalScrollY, child.getRelativePixelY() + child.getPixelHeight() );
 				} );
@@ -201,12 +203,14 @@ public class ScrollUi extends UiComponent {
 				totalScrollY += 5;//0.01f; //
 				maxScrollX = background.getPixelWidth() - totalScrollX; //0.985f 
 				maxScrollY = background.getPixelHeight() - totalScrollY; //0.985f
+				/*
 				range.getWidthConstraint().setPixelValue( totalScrollX );
 				range.getHeightConstraint().setPixelValue( totalScrollY );
 				xEnd.getXConstraint().setPixelValue( totalScrollX );
 				yEnd.getYConstraint().setPixelValue( totalScrollY );
 				bothEnd.getXConstraint().setPixelValue( totalScrollX );
 				bothEnd.getYConstraint().setPixelValue( totalScrollY );
+				*/
 				
 				if( ( bars & HORIZONTAL_WHEN_NEEDED ) == HORIZONTAL_WHEN_NEEDED ) {
 					if( horiBar.isShown() ) {
@@ -308,7 +312,6 @@ public class ScrollUi extends UiComponent {
 				public void onMouseUp( MouseEvent e ) {
 					if( e.button == MouseButton.LEFT )
 						container.customNotify( "resizeContents" );
-					System.out.println("!");
 				}
 			};
 			separator.setName( "Scrollbar Separator" );

@@ -19,7 +19,7 @@ import threelkdev.orreaGE.tools.colours.Colour;
 
 public class DraggableWindowUi extends UiComponent {
 	
-	static final int titleBarSize = 20;
+//	static final int titleBarSize = 20;
 	
 	UiBlock background, titleBar;
 	Text titleText;
@@ -27,11 +27,11 @@ public class DraggableWindowUi extends UiComponent {
 	
 	DraggableWindowUi _this;
 	// dragMode true = use topBar, false = use background
-	public DraggableWindowUi( String title, boolean dragMode, UiStyle style ) {
+	public DraggableWindowUi( String title, boolean dragMode, DraggableWindowUiStyle style ) {
 		_this = this;
 		this.interactable = false;
 		
-		background = new UiBlock( /**/new Colour( 0xffff0000 ) ) {//*/style.getBackgroundColour() ) {
+		background = new UiBlock( style.backgroundColour.duplicate() ) {//*/style.getBackgroundColour() ) {
 			@Override
 			public void onMouseDrag( MouseDragEvent e ) {
 				if( !dragMode && e.button == MouseButton.LEFT ) {
@@ -40,7 +40,7 @@ public class DraggableWindowUi extends UiComponent {
 			}
 		};
 		background.setInteractable( !dragMode );
-		background.setBorder( style.getAccentColour(), 1f );
+		background.setBorder( style.accentColour.duplicate(), 1f );
 		UiConstraints cons = ConstraintFactory.getDefault();
 		cons.setWidth( new FillConstraint( 0 ) );
 		cons.setHeight( new FillConstraint( 0 ) );
@@ -48,7 +48,7 @@ public class DraggableWindowUi extends UiComponent {
 		cons.setY( new PixelConstraint( 0 ) );
 		super.attach( background, cons );
 		
-		titleBar = new UiBlock( style.getForegroundColour() ) {
+		titleBar = new UiBlock( style.titleBarColour.duplicate() ) {
 			@Override
 			public void onMouseDrag( MouseDragEvent e ) {
 				if( dragMode && e.button == MouseButton.LEFT ) {
@@ -59,14 +59,33 @@ public class DraggableWindowUi extends UiComponent {
 		titleBar.setInteractable( dragMode );
 		cons = ConstraintFactory.getDefault();
 		cons.setWidth( new FillConstraint( (int) background.getBorderWidth() ) );
-		cons.setHeight( new PixelConstraint( titleBarSize ) );
+		cons.setHeight( new PixelConstraint( style.titleBarThickness ) );
 		cons.setX( new PixelConstraint( (int) background.getBorderWidth() ) );
 		cons.setY( new PixelConstraint( (int) background.getBorderWidth() ) );
 		super.attach( titleBar, cons );
 		
-		titleText = Text.newText( title ).align( Alignment.LEFT ).setFontSizePixels( titleBarSize ).create();
+		titleText = Text.newText( title ).align( Alignment.LEFT ).setFontSizePixels( style.titleBarThickness ).create();
 		titleBar.addText( titleText, new PixelConstraint( 2 ), new PixelConstraint( 0 ), new FillConstraint( 25 ) );
 		
+	}
+	
+	public static class DraggableWindowUiStyle {
+		
+		final Colour backgroundColour, titleBarColour, accentColour;
+		final int titleBarThickness;
+		
+		public DraggableWindowUiStyle( Colour backgroundColour, Colour titleBarColour, Colour accentColour, int titleBarThickness ) {
+			this.backgroundColour = backgroundColour;
+			this.titleBarColour = titleBarColour;
+			this.accentColour = accentColour;
+			this.titleBarThickness = titleBarThickness;
+		}
+		
+	}
+	
+	@Override
+	public void attach( UiComponent component, UiConstraints cons ) {
+		container.attach( component, cons );
 	}
 	
 	@Override

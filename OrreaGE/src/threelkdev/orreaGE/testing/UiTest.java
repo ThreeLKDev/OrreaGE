@@ -15,6 +15,7 @@ import threelkdev.orreaGE.core.ui.constraints.RelativeConstraint;
 import threelkdev.orreaGE.core.ui.constraints.UiConstraints;
 import threelkdev.orreaGE.core.ui.text.Alignment;
 import threelkdev.orreaGE.core.ui.text.Text;
+import threelkdev.orreaGE.testing.DraggableWindowUi.DraggableWindowUiStyle;
 import threelkdev.orreaGE.tools.colours.Colour;
 
 public class UiTest {
@@ -121,7 +122,7 @@ public class UiTest {
 		ScrollUi scroll = new ScrollUi();
 		cons.setHeight( new PixelConstraint( 200 ) );
 		cons.setWidth( new PixelConstraint( 200 ) );
-		cons.setX( new PixelConstraint( 500 ) );
+		cons.setX( new CenterConstraint( ) );
 		cons.setY( new PixelConstraint( 100 ) );
 		UiMaster.add( scroll, cons );
 		Orrea.instance.addKeyPressListener( GLFW.GLFW_KEY_H, () -> {
@@ -208,7 +209,7 @@ public class UiTest {
 		fpsCounter = Text.newText( "FPS: " ).align( Alignment.LEFT ).create();
 		bg.addText( fpsCounter, new PixelConstraint( 5 ), new PixelConstraint( 0 ), new RelativeConstraint( 1 ) );
 		
-		DraggableWindowUi window = new DraggableWindowUi( "Test Title", true, new UiStyle() );
+		DraggableWindowUi window = new DraggableWindowUi( "Test Title", true, new DraggableWindowUiStyle( new Colour( 0xff222222 ), new Colour( 0xffaaaaaa ), new Colour( 0xff2288ff ), 20 ) );
 		cons = ConstraintFactory.getDefault();
 		cons.setWidth( new PixelConstraint( 200 ) );
 		cons.setHeight( new PixelConstraint( 200 ) );
