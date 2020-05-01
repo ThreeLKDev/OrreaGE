@@ -213,19 +213,28 @@ public class Model {
 			Vector3f backBottomRight	= new Vector3f( r, -r, -r );
 			CUBE = new Model(
 				new ModelNode( "cube", new ModelVertex[] { 
-						new ModelVertex( frontBottomLeft, frontBottomLeft, new Vector2f( 0, 0 ) ),
-						new ModelVertex( frontTopLeft, frontTopLeft, new Vector2f( 0, 1 ) ),
-						new ModelVertex( frontTopRight, frontTopRight, new Vector2f( 1, 1 ) ),
-						new ModelVertex( frontBottomRight, frontBottomRight, new Vector2f( 1, 0 ) ),
-						new ModelVertex( backBottomLeft, backBottomLeft, new Vector2f( 1, 0 ) ),
-						new ModelVertex( backTopLeft, backTopLeft, new Vector2f( 1, 1 ) ),
-						new ModelVertex( backTopRight, backTopRight, new Vector2f( 0, 1 ) ),
-						new ModelVertex( backBottomRight, backBottomRight, new Vector2f( 0, 0 ) )
+						new ModelVertex( frontBottomLeft, frontBottomLeft, new Vector2f( 1f/4f,1f/4f ) ), //0 0
+						new ModelVertex( frontTopLeft, frontTopLeft, new Vector2f( 1f/4f, 1f/2f ) ), // 0 1
+						new ModelVertex( frontTopRight, frontTopRight, new Vector2f( 1f/2f, 1f/2f ) ), // 1 1
+						new ModelVertex( frontBottomRight, frontBottomRight, new Vector2f( 1f/2f, 1f/4f ) ), // 1 0
+						new ModelVertex( backBottomLeft, backBottomLeft, new Vector2f( 1f/4f, 0f ) ), // 1 0
+						new ModelVertex( backTopLeft, backTopLeft, new Vector2f( 1f/4f, 3f/4f ) ), // 1 1
+						new ModelVertex( backTopRight, backTopRight, new Vector2f( 1f/2f, 3f/4f ) ), // 0 1
+						new ModelVertex( backBottomRight, backBottomRight, new Vector2f( 1f/2f, 0f ) ), // 0 0
+						
+						new ModelVertex( backBottomLeft, backBottomLeft, new Vector2f( 1f/4f, 1f ) ),
+						new ModelVertex( backBottomRight, backBottomRight, new Vector2f( 1f/2f, 1f ) ),
+						
+						new ModelVertex( backBottomLeft, backBottomLeft, new Vector2f( 0f, 1f/4f ) ),
+						new ModelVertex( backTopLeft, backTopLeft, new Vector2f( 0f, 1f/2f ) ),
+						
+						new ModelVertex( backBottomRight, backBottomRight, new Vector2f( 3f/4f, 1f/4f ) ),
+						new ModelVertex( backTopRight, backTopRight, new Vector2f( 3f/4f, 2f/4f ) )
 				},  new int[] { 
-						0, 3, 2, 0, 2, 1, // Front
-						3, 7, 6, 3, 6, 2, //Right
-						4, 0, 1, 4, 1, 5, //Left
-						7, 4, 5, 7, 5, 6, //Back
+						0, 3, 2, 0, 2, 1, // Front - fBL, fBR, fTR, fBL, fTR, fTL
+						3, 12, 13, 3, 13, 2, //Right
+						10, 0, 1, 10, 1, 11, //Left
+						9, 8, 5, 9, 5, 6, //Back
 						1, 2, 6, 1, 6, 5, //Top
 						3, 0, 4, 3, 4, 7 //Bottom
 						} )
@@ -233,6 +242,12 @@ public class Model {
 		}
 		return CUBE;
 	}
+	
+	/*function get_texel_coords(x, y, tex_width, tex_height)
+    u = (x + 0.5) / tex_width
+    v = (y + 0.5) / tex_height
+    return u, v
+end*/
 	
 	public static Model getFlatHedron( int complexity, float height, float radius ) {
 		ModelVertex[] verts = new ModelVertex[ complexity * 6 ];

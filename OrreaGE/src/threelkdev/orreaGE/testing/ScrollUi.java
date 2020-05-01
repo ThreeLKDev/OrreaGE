@@ -305,7 +305,7 @@ public class ScrollUi extends UiComponent {
 						_this.getWidthConstraint().offsetRelative( e.diffX );
 						_this.getHeightConstraint().offsetRelative( e.diffY );
 						_this.notifyDimensionChange( true );
-						//TODO: Resizing when X or Y constraint is a CenterConstaint looks weird. Works effectively identical.
+						//FIXME: Resizing when X or Y constraint is a CenterConstaint looks weird. Works effectively identical.
 					}
 				}
 				@Override

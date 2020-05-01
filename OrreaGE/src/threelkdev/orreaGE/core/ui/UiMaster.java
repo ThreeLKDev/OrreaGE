@@ -139,7 +139,9 @@ public class UiMaster {
 					}
 				}
 			});
-			if( mouseTarget != null && lastMouseTarget != mouseTarget ) System.out.println( mouseTarget.getName() + ": " + mouseTarget.getLevel() );
+//			if( mouseTarget != null && lastMouseTarget != mouseTarget ) System.out.println( mouseTarget.getName() + ": " + mouseTarget.getLevel() );
+			System.out.println( 
+					mouseTarget != null ? mouseTarget.getName() : "null ( " + currentMouse.getPixelX() + ", " + currentMouse.getPixelY() + " )   [ " + currentMouse.getX() + ", " + currentMouse.getY() + " ]" + ( currentMouse.getY() < 0.5f ? "TRUE" : ""  ) );
 //			if( mouseTarget != null ) {
 //				break;
 //			}

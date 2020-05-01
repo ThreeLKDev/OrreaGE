@@ -96,12 +96,13 @@ public class EngineTest {
 		
 		for( int i = 0; i < 20; i++ ) {
 			Vector4f colour = Vec4Pool.getRandom();
+			colour.w = ( Math.floor( colour.w + 0.5f ) == 0 ? 0.5f : 1f );
 			Material instanceMat = new Material( 
 					i == 0
 					? Texture.newTexture( FileUtils.getTexture( "TestSpiralTex.png" ) ).nearestFiltering().clampEdges().create()
 					: null );
 			instanceMat.setDiffuse( new Vector3f( colour ) );
-//			instanceMat.setAlpha( colour.w );
+			instanceMat.setAlpha( colour.w );
 			for( int j = 0; j < 50; j++ ) {
 				ModelInstance instance = new ModelInstance( test );
 				

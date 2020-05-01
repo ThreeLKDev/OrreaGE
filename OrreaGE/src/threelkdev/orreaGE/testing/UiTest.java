@@ -122,7 +122,7 @@ public class UiTest {
 		ScrollUi scroll = new ScrollUi();
 		cons.setHeight( new PixelConstraint( 200 ) );
 		cons.setWidth( new PixelConstraint( 200 ) );
-		cons.setX( new CenterConstraint( ) );
+		cons.setX( new PixelConstraint( 100 ) );
 		cons.setY( new PixelConstraint( 100 ) );
 		UiMaster.add( scroll, cons );
 		Orrea.instance.addKeyPressListener( GLFW.GLFW_KEY_H, () -> {
