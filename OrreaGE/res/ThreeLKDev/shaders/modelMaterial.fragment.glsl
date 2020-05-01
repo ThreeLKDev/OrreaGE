@@ -8,6 +8,13 @@ out vec4 out_colour;
 uniform sampler2D tex;
 uniform float texBlend;
 
+vec2 texSize;
+vec2 texCoord;
+
 void main( void ){
-	out_colour = mix( pass_colour, texture( tex, pass_texCoord ), texBlend );
+	texCoord = pass_texCoord;
+	ivec2 texSize = textureSize(tex,0);
+	texCoord.x = clamp( texCoord.x, 0.01 / texSize.x, 1.0 - ( 0.01 / texSize.x ) );
+	texCoord.y = clamp( texCoord.y, 0.01 / texSize.y, 1.0 - ( 0.01 / texSize.y ) );
+	out_colour = mix( pass_colour, texture( tex, texCoord ), texBlend );
 }
